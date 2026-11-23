@@ -40,7 +40,10 @@ function decodeBase64(encoded: string): string {
 }
 
 function convert(mode: Mode, input: string): ConversionResult {
-  if (input.trim() === '') {
+  // 编码模式仅在完全空串时短路（纯空白是合法输入，如 " " → "IA=="）；
+  // 解码模式维持 trim 短路，纯空白视为未输入
+  const isEmpty = mode === 'encode' ? input === '' : input.trim() === ''
+  if (isEmpty) {
     return { output: '', error: null }
   }
   try {
@@ -117,6 +120,17 @@ export default function Base64Tool() {
     }
   }
 
+  // 复制失败提示不驻留：输入或模式变化时清空
+  function handleModeChange(next: Mode) {
+    setMode(next)
+    setCopyError('')
+  }
+
+  function handleInputChange(value: string) {
+    setInput(value)
+    setCopyError('')
+  }
+
   const isEncode = mode === 'encode'
   const inputLabel = isEncode ? '原文文本' : 'Base64 文本'
   const outputLabel = isEncode ? 'Base64 结果' : '解码结果'
@@ -149,7 +163,7 @@ export default function Base64Tool() {
             name="base64-mode"
             value="encode"
             checked={isEncode}
-            onChange={() => setMode('encode')}
+            onChange={() => handleModeChange('encode')}
           />
           编码（文本 → Base64）
         </label>
@@ -159,7 +173,7 @@ export default function Base64Tool() {
             name="base64-mode"
             value="decode"
             checked={!isEncode}
-            onChange={() => setMode('decode')}
+            onChange={() => handleModeChange('decode')}
           />
           解码（Base64 → 文本）
         </label>
@@ -196,7 +210,7 @@ export default function Base64Tool() {
         value={input}
         rows={8}
         placeholder={inputPlaceholder}
-        onChange={(event) => setInput(event.target.value)}
+        onChange={(event) => handleInputChange(event.target.value)}
       />
 
       <div

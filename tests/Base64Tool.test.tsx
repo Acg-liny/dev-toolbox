@@ -4,11 +4,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import Base64Tool from '../src/tools/Base64Tool'
 
 function getInput(): HTMLTextAreaElement {
-  return screen.getByLabelText('原文文本') as HTMLTextAreaElement
+  return screen.getByLabelText<HTMLTextAreaElement>('原文文本')
 }
 
 function getOutput(): HTMLTextAreaElement {
-  return screen.getByLabelText('Base64 结果') as HTMLTextAreaElement
+  return screen.getByLabelText<HTMLTextAreaElement>('Base64 结果')
 }
 
 async function switchToDecode(user: ReturnType<typeof userEvent.setup>) {
@@ -75,6 +75,19 @@ describe('AC-2 中文与 emoji 编码 → 解码往返一致', () => {
     await switchToDecode(user)
     await user.type(screen.getByLabelText('Base64 文本'), '5L2g5aW9')
     expect(screen.getByLabelText('解码结果').value).toBe('你好')
+  })
+
+  it('纯空白输入编码结果正确（不被空串短路）', async () => {
+    const user = userEvent.setup()
+    render(<Base64Tool />)
+
+    await user.type(getInput(), ' ')
+    expect(getOutput().value).toBe('IA==')
+
+    await user.clear(getInput())
+    await user.click(getInput())
+    await user.paste('\n')
+    expect(getOutput().value).toBe('Cg==')
   })
 })
 
@@ -180,6 +193,18 @@ describe('AC-4 输入、输出均可一键复制', () => {
     await user.type(getInput(), 'abc')
     await user.click(screen.getByRole('button', { name: '复制输入' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('复制失败')
+  })
+
+  it('复制失败提示在输入变化后自动清除', async () => {
+    const user = setupUser()
+    writeText.mockRejectedValue(new Error('denied'))
+    render(<Base64Tool />)
+    await user.type(getInput(), 'abc')
+    await user.click(screen.getByRole('button', { name: '复制输入' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('复制失败')
+
+    await user.type(getInput(), 'd')
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
 
