@@ -206,6 +206,20 @@ describe('AC-4 输入、输出均可一键复制', () => {
     await user.type(getInput(), 'd')
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
+
+  it('复制失败提示在模式切换后清除', async () => {
+    const user = setupUser()
+    writeText.mockRejectedValue(new Error('denied'))
+    render(<Base64Tool />)
+    // 合法 Base64：切到解码模式后无解码错误，便于确认 alert 因 copyError 清除而消失
+    await user.type(getInput(), 'aGVsbG8=')
+    await user.click(screen.getByRole('button', { name: '复制输入' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('复制失败')
+
+    await switchToDecode(user)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('解码结果').value).toBe('hello')
+  })
 })
 
 describe('占位文本不影响实际界面', () => {
