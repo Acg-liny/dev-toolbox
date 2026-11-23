@@ -111,9 +111,16 @@ const buttonStyle: CSSProperties = {
   whiteSpace: 'nowrap',
 }
 
+// 错误提示色：亮/暗两套背景分别达 WCAG AA 4.5:1（单色无法同时达标）
+const errorCss = `
+.ts-error { color: #b91c1c; }
+@media (prefers-color-scheme: dark) {
+  .ts-error { color: #fca5a5; }
+}
+`
+
 const errorStyle: CSSProperties = {
   margin: 'var(--space-2) 0 0',
-  color: '#b91c1c',
   fontSize: 13,
 }
 
@@ -229,6 +236,7 @@ export default function TimestampConverter() {
 
   return (
     <div>
+      <style>{errorCss}</style>
       <h2>时间戳转换</h2>
       {/* AC-3 骨架测试仍断言占位文本，待 tech-lead 更新 tests/registry.test.tsx 后移除 */}
       <p className="tool-status" hidden>
@@ -275,32 +283,32 @@ export default function TimestampConverter() {
           自动识别：10 位按秒、13 位按毫秒
         </p>
         {tsParse && !tsParse.ok && (
-          <p style={errorStyle} role="alert">
+          <p className="ts-error" style={errorStyle} role="alert">
             {tsParse.error}
           </p>
         )}
-        {tsParse && tsParse.ok && (
+        {tsParse && tsParse.ok && formats && (
           <>
             <p style={hintStyle}>
               已识别：{tsParse.unit === 'second' ? '秒级' : '毫秒级'}
             </p>
             <ResultRow
               label="本地时间"
-              value={formats!.local}
+              value={formats.local}
               copyKey="ts-local"
               copiedKey={copiedKey}
               onCopy={handleCopy}
             />
             <ResultRow
               label="ISO 8601"
-              value={formats!.iso}
+              value={formats.iso}
               copyKey="ts-iso"
               copiedKey={copiedKey}
               onCopy={handleCopy}
             />
             <ResultRow
               label="UTC"
-              value={formats!.utc}
+              value={formats.utc}
               copyKey="ts-utc"
               copiedKey={copiedKey}
               onCopy={handleCopy}
@@ -323,7 +331,7 @@ export default function TimestampConverter() {
         />
         <p style={hintStyle}>按本机时区解析</p>
         {dtParse && !dtParse.ok && (
-          <p style={errorStyle} role="alert">
+          <p className="ts-error" style={errorStyle} role="alert">
             {dtParse.error}
           </p>
         )}
@@ -348,7 +356,7 @@ export default function TimestampConverter() {
       </section>
 
       {copyError && (
-        <p style={errorStyle} role="alert">
+        <p className="ts-error" style={errorStyle} role="alert">
           {copyError}
         </p>
       )}
