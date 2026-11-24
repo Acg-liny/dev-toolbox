@@ -220,3 +220,71 @@ describe('AC-7 DEC 超出安全整数范围', () => {
     expect(within(resultRow('BIN')).getByText('1'.repeat(53))).toBeInTheDocument()
   })
 })
+
+describe('边界值与异常路径补充', () => {
+  it('DEC 输入 007 → DEC 行规范化显示 7（结果行显示规范化值）', () => {
+    render(<BaseConverter />)
+    fireEvent.change(inputBox(), { target: { value: '007' } })
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(within(resultRow('DEC')).getByText('7')).toBeInTheDocument()
+    expect(within(resultRow('BIN')).getByText('111')).toBeInTheDocument()
+  })
+
+  it('HEX 大写输入 FF 与小写等价，HEX 行统一大写', () => {
+    render(<BaseConverter />)
+    fireEvent.click(screen.getByRole('radio', { name: 'HEX' }))
+    fireEvent.change(inputBox(), { target: { value: 'FF' } })
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(within(resultRow('DEC')).getByText('255')).toBeInTheDocument()
+    expect(within(resultRow('HEX')).getByText('FF')).toBeInTheDocument()
+  })
+
+  it('HEX 输入 0x1f → 前缀不识别，给出字符集错误', () => {
+    render(<BaseConverter />)
+    fireEvent.click(screen.getByRole('radio', { name: 'HEX' }))
+    fireEvent.change(inputBox(), { target: { value: '0x1f' } })
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '十六进制仅允许 0-9 和 A-F',
+    )
+    expect(within(resultRow('DEC')).getByText('—')).toBeInTheDocument()
+  })
+
+  it('DEC 输入 -1 → 本期不支持负数，落入字符集错误', () => {
+    render(<BaseConverter />)
+    fireEvent.change(inputBox(), { target: { value: '-1' } })
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '十进制仅允许数字 0-9',
+    )
+    expect(within(resultRow('DEC')).getByText('—')).toBeInTheDocument()
+  })
+
+  it('切换输入进制后按新进制重新校验：DEC 255 切到 BIN → 报错，切回恢复', () => {
+    render(<BaseConverter />)
+    const input = inputBox()
+    fireEvent.change(input, { target: { value: '255' } })
+    expect(within(resultRow('BIN')).getByText('11111111')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'BIN' }))
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '二进制仅允许 0 和 1',
+    )
+    expect(within(resultRow('BIN')).getByText('—')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('radio', { name: 'DEC' }))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(within(resultRow('BIN')).getByText('11111111')).toBeInTheDocument()
+  })
+
+  it('输入含首尾空白可正常解析（trim 后校验）', () => {
+    render(<BaseConverter />)
+    fireEvent.change(inputBox(), { target: { value: '  255  ' } })
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(within(resultRow('DEC')).getByText('255')).toBeInTheDocument()
+    expect(within(resultRow('HEX')).getByText('FF')).toBeInTheDocument()
+  })
+})
