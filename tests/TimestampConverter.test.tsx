@@ -63,7 +63,34 @@ describe('AC-1 当前时间实时刷新（1s）', () => {
 })
 
 describe('AC-1 复制按钮', () => {
+  /**
+   * 冻结时钟（同上方刷新用例）：组件 render 与测试取期望秒值之间
+   * 不再可能跨 Unix 秒边界，消除 flaky（BETE-14）。
+   * 只 fakes 定时器与 Date，微任务不受影响。
+   */
+  function freezeClock() {
+    vi.useFakeTimers({
+      toFake: [
+        'setTimeout',
+        'clearTimeout',
+        'setInterval',
+        'clearInterval',
+        'Date',
+      ],
+    })
+    vi.setSystemTime(new Date('2026-11-23T12:00:00.000Z'))
+  }
+
+  /** 当前时间区块内按显示值取所在行 */
+  function getCurrentRow(displayed: string): HTMLElement {
+    const region = screen.getByRole('region', { name: '当前时间' })
+    const row = within(region).getByText(displayed).closest('div')
+    if (!row) throw new Error(`未找到 ${displayed} 所在的行`)
+    return row
+  }
+
   it('AC-1: 点击秒级行的复制按钮，将秒级时间戳写入剪贴板并显示「已复制」', async () => {
+    freezeClock()
     const writeText = vi.fn().mockResolvedValue(undefined)
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText },
@@ -71,28 +98,33 @@ describe('AC-1 复制按钮', () => {
     })
 
     render(<TimestampConverter />)
-    const region = screen.getByRole('region', { name: '当前时间' })
     const sec = Math.floor(Date.now() / 1000)
-    const row = within(region).getByText(String(sec)).closest('div')!
+    const row = getCurrentRow(String(sec))
 
-    fireEvent.click(within(row as HTMLElement).getByRole('button', { name: '复制' }))
+    fireEvent.click(within(row).getByRole('button', { name: '复制' }))
 
-    expect(await within(row as HTMLElement).findByRole('button', { name: '已复制' })).toBeInTheDocument()
+    // 冲刷 handleCopy 的 promise 链；fake timers 下不依赖 waitFor 轮询
+    await act(async () => {
+      await Promise.resolve()
+    })
+
+    expect(within(row).getByRole('button', { name: '已复制' })).toBeInTheDocument()
     expect(writeText).toHaveBeenCalledWith(String(sec))
   })
 
-  it('AC-1: 剪贴板不可用时给出复制失败提示，不崩溃', async () => {
+  it('AC-1: 剪贴板不可用时给出复制失败提示，不崩溃', () => {
+    freezeClock()
     // jsdom 默认无 navigator.clipboard
     render(<TimestampConverter />)
-    const region = screen.getByRole('region', { name: '当前时间' })
     const sec = Math.floor(Date.now() / 1000)
-    const row = within(region).getByText(String(sec)).closest('div')!
+    const row = getCurrentRow(String(sec))
 
-    fireEvent.click(within(row as HTMLElement).getByRole('button', { name: '复制' }))
+    fireEvent.click(within(row).getByRole('button', { name: '复制' }))
 
-    expect(
-      await screen.findByRole('alert', { name: '' }),
-    ).toHaveTextContent('复制失败，请手动选择文本后复制')
+    // writeText 抛错在 handleCopy 同步路径捕获，fireEvent 内即已落状态
+    expect(screen.getByRole('alert', { name: '' })).toHaveTextContent(
+      '复制失败，请手动选择文本后复制',
+    )
   })
 })
 
