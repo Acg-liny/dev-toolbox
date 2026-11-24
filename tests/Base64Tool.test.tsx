@@ -222,16 +222,8 @@ describe('AC-4 输入、输出均可一键复制', () => {
   })
 })
 
-describe('占位文本不影响实际界面', () => {
-  it('「开发中」以隐藏节点存在，界面不可见', () => {
-    render(<Base64Tool />)
-    const placeholder = screen.getByText('开发中')
-    expect(placeholder).toBeInTheDocument()
-    expect(placeholder).not.toBeVisible()
-    expect(placeholder).toHaveAttribute('hidden')
-  })
-
-  it('隐藏占位不影响表单控件的可见性', async () => {
+describe('表单控件可见可交互', () => {
+  it('表单控件默认可见，输入即产生输出', async () => {
     const user = userEvent.setup()
     render(<Base64Tool />)
     expect(getInput()).toBeVisible()

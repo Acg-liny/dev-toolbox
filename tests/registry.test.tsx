@@ -49,14 +49,20 @@ describe('AC-3 每个工具独立文件、注册表挂载', () => {
     }
   })
 
-  it('AC-3: 每个空壳组件渲染自身标题与「开发中」占位', () => {
+  it('AC-3: 每个工具组件渲染自身标题与实际功能区（已实现，无「开发中」占位）', () => {
     for (const tool of tools as readonly ToolDescriptor[]) {
       cleanup()
-      render(<tool.component />)
+      const { container } = render(<tool.component />)
       expect(
         screen.getByRole('heading', { level: 2, name: tool.name }),
       ).toBeInTheDocument()
-      expect(screen.getByText('开发中')).toBeInTheDocument()
+      // 已实现的工具不再渲染「开发中」占位
+      expect(screen.queryByText('开发中')).not.toBeInTheDocument()
+      // 且渲染了可交互的功能控件（按钮/输入/文本域等）
+      expect(
+        container.querySelectorAll('button, input, textarea, select').length,
+        `${tool.id} 应渲染可交互功能控件`,
+      ).toBeGreaterThan(0)
     }
   })
 

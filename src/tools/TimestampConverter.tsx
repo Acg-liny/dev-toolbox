@@ -230,10 +230,6 @@ export default function TimestampConverter() {
   return (
     <div>
       <h2>时间戳转换</h2>
-      {/* AC-3 骨架测试仍断言占位文本，待 tech-lead 更新 tests/registry.test.tsx 后移除 */}
-      <p className="tool-status" hidden>
-        开发中
-      </p>
 
       <section style={sectionStyle} aria-label="当前时间">
         <h3 style={sectionTitleStyle}>当前时间</h3>

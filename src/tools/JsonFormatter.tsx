@@ -196,12 +196,6 @@ const preMutedStyle: CSSProperties = {
   color: 'var(--color-text-muted)',
 }
 
-const footerStyle: CSSProperties = {
-  margin: 'var(--space-5) 0 0',
-  fontSize: 13,
-  color: 'var(--color-text-muted)',
-}
-
 export default function JsonFormatter() {
   const [input, setInput] = useState(SAMPLE_JSON)
   const [copyState, setCopyState] = useState<CopyTarget | 'failed' | null>(null)
@@ -305,11 +299,6 @@ export default function JsonFormatter() {
         </pre>
       </div>
 
-      {/* registry.test 的 AC-3 仍断言每个工具组件渲染「开发中」占位；
-          本工具已实现，故状态行指向其余工具；该断言更新后可删除本行 */}
-      <p style={footerStyle}>
-        其余工具：<span>开发中</span>
-      </p>
     </div>
   )
 }

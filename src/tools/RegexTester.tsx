@@ -177,10 +177,6 @@ export default function RegexTester() {
   return (
     <div style={{ maxWidth: 720 }}>
       <h2>正则测试</h2>
-      {/* AC-3 骨架测试仍断言占位文本，待 tech-lead 更新 tests/registry.test.tsx 后移除 */}
-      <p className="tool-status" hidden>
-        开发中
-      </p>
 
       <div style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
         <div style={{ flex: 1 }}>

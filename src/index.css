@@ -185,17 +185,6 @@ a {
   max-width: 720px;
 }
 
-.tool-status {
-  display: inline-block;
-  margin: 0;
-  padding: var(--space-1) var(--space-3);
-  border-radius: 999px;
-  background: var(--color-badge-bg);
-  color: var(--color-badge-text);
-  font-size: 13px;
-  font-weight: 500;
-}
-
 /* ===== 响应式 ===== */
 
 @media (max-width: 768px) {

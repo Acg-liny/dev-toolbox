@@ -142,10 +142,6 @@ export default function Base64Tool() {
   return (
     <div style={{ maxWidth: 720 }}>
       <h2>Base64 编解码</h2>
-      {/* AC-3 骨架测试仍断言占位文本，待 tech-lead 更新 tests/registry.test.tsx 后移除 */}
-      <p className="tool-status" hidden>
-        开发中
-      </p>
 
       <fieldset
         style={{

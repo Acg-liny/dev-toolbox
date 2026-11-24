@@ -109,10 +109,6 @@ export default function UuidGenerator() {
   return (
     <div style={{ maxWidth: 720 }}>
       <h2>UUID 生成器</h2>
-      {/* AC-3 骨架测试仍断言占位文本，待 tech-lead 更新 tests/registry.test.tsx 后移除 */}
-      <p className="tool-status" hidden>
-        开发中
-      </p>
 
       <div
         style={{
