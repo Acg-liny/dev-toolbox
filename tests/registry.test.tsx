@@ -19,13 +19,14 @@ const EXPECTED_TOOLS: { id: string; name: string; file: string }[] = [
   { id: 'base64-tool', name: 'Base64 编解码', file: 'Base64Tool.tsx' },
   { id: 'regex-tester', name: '正则测试', file: 'RegexTester.tsx' },
   { id: 'uuid-generator', name: 'UUID 生成器', file: 'UuidGenerator.tsx' },
+  { id: 'base-converter', name: '进制转换', file: 'BaseConverter.tsx' },
 ]
 
 const srcToolsDir = join(__dirname, '..', 'src', 'tools')
 
 describe('AC-3 每个工具独立文件、注册表挂载', () => {
   it('AC-3: 注册表包含 5 个工具，id 唯一', () => {
-    expect(tools).toHaveLength(5)
+    expect(tools).toHaveLength(6)
     const ids = tools.map((t) => t.id)
     expect(new Set(ids).size).toBe(ids.length)
     for (const expected of EXPECTED_TOOLS) {
