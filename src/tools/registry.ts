@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import Base64Tool from './Base64Tool'
+import BaseConverter from './BaseConverter'
 import JsonFormatter from './JsonFormatter'
 import RegexTester from './RegexTester'
 import TimestampConverter from './TimestampConverter'
@@ -46,6 +47,12 @@ const registry: [ToolDescriptor, ...ToolDescriptor[]] = [
     name: 'UUID 生成器',
     description: '批量生成 UUID v4',
     component: UuidGenerator,
+  },
+  {
+    id: 'base-converter',
+    name: '进制转换',
+    description: '二/八/十/十六进制互转',
+    component: BaseConverter,
   },
 ]
 

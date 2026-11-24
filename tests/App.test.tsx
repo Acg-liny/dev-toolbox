@@ -32,7 +32,7 @@ describe('AC-2 侧边栏切换与 hash 选中保持', () => {
     ]) {
       expect(links).toHaveTextContent(name)
     }
-    expect(links.querySelectorAll('a.tool-link')).toHaveLength(5)
+    expect(links.querySelectorAll('a.tool-link')).toHaveLength(6)
   })
 
   it('AC-2: 点击侧边栏切换工具并更新选中标记', async () => {
